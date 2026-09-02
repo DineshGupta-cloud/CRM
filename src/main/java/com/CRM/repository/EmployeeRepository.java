@@ -1,7 +1,11 @@
 package com.CRM.repository;
 
 import com.CRM.entity.Employee;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -11,25 +15,71 @@ import java.util.Optional;
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
-    Optional<Employee> findByEmail(String email);
+    Optional<Employee> findByIdAndDeletedFalse(Long id);
 
+    Optional<Employee> findByCompanyIdAndEmployeeCodeAndDeletedFalse(
+            Long companyId,
+            String employeeCode
+    );
 
-    Optional<Employee> findByEmployeeCode(String employeeCode);
+    Optional<Employee> findByCompanyIdAndEmailAndDeletedFalse(
+            Long companyId,
+            String email
+    );
 
-    boolean existsByEmail(String email);
+    boolean existsByCompanyIdAndEmployeeCodeAndDeletedFalse(
+            Long companyId,
+            String employeeCode
+    );
 
-    boolean existsByEmployeeCode(String employeeCode);
+    boolean existsByCompanyIdAndEmailAndDeletedFalse(
+            Long companyId,
+            String email
+    );
 
-    Employee findTopByOrderByIdDesc();
-    long countByActive(Boolean  status);
+    boolean existsByCompanyIdAndMobileNumberAndDeletedFalse(
+            Long companyId,
+            String mobileNumber
+    );
 
-     long countByJoiningDateAfter(LocalDate localDate);
+    List<Employee> findByCompanyIdAndDeletedFalseOrderByIdDesc(
+            Long companyId
+    );
 
-    List<Employee> findTop5ByOrderByIdDesc();
+    Page<Employee> findByCompanyIdAndDeletedFalse(
+            Long companyId,
+            Pageable pageable
+    );
 
-    long countByActiveTrue();
+    long countByCompanyIdAndDeletedFalse(Long companyId);
 
-    long countByActiveFalse();
-    List<Employee> findTop10ByOrderByCreatedDateDesc();
+    long countByCompanyIdAndActiveTrueAndDeletedFalse(Long companyId);
 
+    long countByCompanyIdAndActiveFalseAndDeletedFalse(Long companyId);
+
+    long countByCompanyIdAndJoiningDateAfterAndDeletedFalse(
+            Long companyId,
+            LocalDate localDate
+    );
+
+    List<Employee> findTop5ByCompanyIdAndDeletedFalseOrderByIdDesc(
+            Long companyId
+    );
+
+    List<Employee> findTop10ByCompanyIdAndDeletedFalseOrderByCreatedDateDesc(
+            Long companyId
+    );
+
+    @Query("""
+        SELECT e
+        FROM Employee e
+        WHERE e.id = :employeeId
+          AND e.company.id = :companyId
+          AND e.deleted = false
+    """)
+    Optional<Employee> findScopedEmployee(
+            @Param("employeeId") Long employeeId,
+            @Param("companyId") Long companyId
+    );
 }
+
