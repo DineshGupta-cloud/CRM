@@ -24,34 +24,34 @@ public class Company {
     @Column(nullable = false, length = 100)
     private String companyName;
 
-    @Column(length = 100)
+    @Column(length = 150)
     private String email;
 
-    @Column(length = 15)
+    @Column(length = 30)
     private String phone;
 
-    @Column(length = 100)
+    @Column(length = 255)
     private String website;
 
-    @Column(length = 20)
+    @Column(length = 30)
     private String gstNumber;
 
-    @Column(length = 20)
+    @Column(length = 30)
     private String panNumber;
 
-    @Column(length = 255)
+    @Column(length = 500)
     private String address;
 
-    @Column(length = 80)
+    @Column(length = 100)
     private String city;
 
-    @Column(length = 80)
+    @Column(length = 100)
     private String state;
 
-    @Column(length = 80)
+    @Column(length = 100)
     private String country;
 
-    @Column(length = 10)
+    @Column(length = 20)
     private String pinCode;
 
     @Builder.Default
