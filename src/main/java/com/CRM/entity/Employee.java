@@ -27,7 +27,7 @@ public class Employee {
 
     // ================= BASIC =================
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(nullable = false, length = 20)
     private String employeeCode;
 
     @NotBlank
@@ -85,10 +85,6 @@ public class Employee {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "designation_id")
     private Designation designation;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id")
-    private Role role;
 
     @OneToOne(mappedBy = "employee", fetch = FetchType.LAZY)
     private User user;

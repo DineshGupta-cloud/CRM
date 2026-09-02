@@ -13,7 +13,6 @@ public class EmployeeMapper {
                              Branch branch,
                              Department department,
                              Designation designation,
-                             Role role,
                              Employee manager) {
 
         return Employee.builder()
@@ -35,7 +34,7 @@ public class EmployeeMapper {
                 .branch(branch)
                 .department(department)
                 .designation(designation)
-                .role(role)
+
                 .reportingManager(manager)
 
                 .basicSalary(request.getBasicSalary())
@@ -97,7 +96,7 @@ public class EmployeeMapper {
         employee.setBranch(branch);
         employee.setDepartment(department);
         employee.setDesignation(designation);
-        employee.setRole(role);
+
         employee.setReportingManager(manager);
 
         employee.setBasicSalary(request.getBasicSalary());
@@ -132,15 +131,7 @@ public class EmployeeMapper {
 
     public EmployeeResponse toResponse(Employee employee) {
 
-        System.out.println("Employee ID: " + employee.getId());
-        System.out.println("Employee Code: " + employee.getEmployeeCode());
-        System.out.println("Company: " + employee.getCompany());
-        System.out.println("Branch: " + employee.getBranch());
-        System.out.println("Department: " + employee.getDepartment());
-        System.out.println("Designation: " + employee.getDesignation());
-        System.out.println("Role: " + employee.getRole());
-
-        return EmployeeResponse.builder()
+       return EmployeeResponse.builder()
                 .id(employee.getId())
                 .employeeCode(employee.getEmployeeCode())
 
@@ -171,10 +162,6 @@ public class EmployeeMapper {
 
                 .designationId(employee.getDesignation().getId())
                 .designationName(employee.getDesignation().getDesignationName())
-
-                .roleId(employee.getRole().getId())
-                .roleName(employee.getRole().getRoleName())
-
                 .reportingManagerId(
                         employee.getReportingManager() != null ?
                                 employee.getReportingManager().getId() : null)
