@@ -1,0 +1,88 @@
+package com.CRM.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "lead_activity")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class LeadActivity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false,unique = true,length = 20)
+    private String activityNumber;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="lead_id",nullable = false)
+    private Lead lead;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="activity_type_id",nullable = false)
+    private LeadActivityType activityType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="performed_by")
+    private Employee performedBy;
+
+    @Column(nullable = false,length = 200)
+    private String title;
+
+    @Column(length = 4000)
+    private String description;
+
+    @Column(length = 1000)
+    private String oldValue;
+
+    @Column(length = 1000)
+    private String newValue;
+
+    @Column(length = 50)
+    private String referenceType;
+
+    private Long referenceId;
+
+    @Builder.Default
+    private Boolean systemGenerated=false;
+
+    @Builder.Default
+    private Boolean active=true;
+
+    @Builder.Default
+    private Boolean deleted=false;
+
+    private String createdBy;
+
+    private String updatedBy;
+
+    private LocalDateTime createdDate;
+
+    private LocalDateTime updatedDate;
+
+    @Version
+    private Long version;
+
+    @PrePersist
+    public void prePersist(){
+
+        createdDate=LocalDateTime.now();
+        updatedDate=LocalDateTime.now();
+
+    }
+
+    @PreUpdate
+    public void preUpdate(){
+
+        updatedDate=LocalDateTime.now();
+
+    }
+
+}
