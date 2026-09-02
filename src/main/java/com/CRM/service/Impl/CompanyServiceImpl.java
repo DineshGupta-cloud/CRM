@@ -9,14 +9,12 @@ import com.CRM.mapper.CompanyMapper;
 import com.CRM.repository.CompanyRepository;
 import com.CRM.security.SecurityUtils;
 import com.CRM.service.CompanyService;
-import com.CRM.service.CustomerActivityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 
 @Service
 @RequiredArgsConstructor
@@ -25,23 +23,22 @@ public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
-
     private final SecurityUtils securityUtils;
-
-    private final CustomerActivityService customerActivityService;
-//    private final SecurityUtils securityUtils;
 
     @Override
     public CompanyResponse create(CompanyRequest request) {
 
-        if (companyRepository.existsByCompanyCode(request.getCompanyCode())) {
-            throw new DuplicateResourceException("Company Code already exists.");
+        if (companyRepository.existsByCompanyCodeAndDeletedFalse(
+                request.getCompanyCode())) {
+
+            throw new DuplicateResourceException(
+                    "Company Code already exists."
+            );
         }
 
         Company company = companyMapper.toEntity(request);
 
         company = companyRepository.save(company);
-
 
         return companyMapper.toResponse(company);
     }
@@ -49,14 +46,17 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public CompanyResponse update(Long id, CompanyRequest request) {
 
-        Company company = companyRepository.findById(id)
+        Company company = companyRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Company not found"));
+                        new ResourceNotFoundException("Company not found."));
 
         if (!company.getCompanyCode().equals(request.getCompanyCode())
-                && companyRepository.existsByCompanyCode(request.getCompanyCode())) {
+                && companyRepository.existsByCompanyCodeAndDeletedFalse(
+                request.getCompanyCode())) {
 
-            throw new DuplicateResourceException("Company Code already exists.");
+            throw new DuplicateResourceException(
+                    "Company Code already exists."
+            );
         }
 
         company.setCompanyCode(request.getCompanyCode());
@@ -84,7 +84,7 @@ public class CompanyServiceImpl implements CompanyService {
 
         Company company = companyRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Company not found"));
+                        new ResourceNotFoundException("Company not found."));
 
         return companyMapper.toResponse(company);
     }
@@ -100,16 +100,14 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    @Transactional
     public void delete(Long id) {
 
-        Company company = companyRepository.findById(id)
+        Company company = companyRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Company not found."));
 
         company.setActive(false);
         company.setDeleted(true);
-//        company.setDeletedBy(securityUtils.getCurrentEmployeeId());
         company.setDeletedBy(securityUtils.getCurrentUserId());
         company.setDeletedDate(LocalDateTime.now());
 
