@@ -1,7 +1,6 @@
 package com.CRM.repository;
 
 import com.CRM.entity.Branch;
-import com.CRM.entity.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,18 +10,35 @@ import java.util.Optional;
 @Repository
 public interface BranchRepository extends JpaRepository<Branch, Long> {
 
-    boolean existsByBranchCode(String branchCode);
-    long count();
-
-    List<Branch> findByDeletedFalse();
-
     Optional<Branch> findByIdAndDeletedFalse(Long id);
 
-    boolean existsByBranchCodeAndDeletedFalse(String companyCode);
+    Optional<Branch> findByIdAndCompanyIdAndDeletedFalse(
+            Long id,
+            Long companyId
+    );
 
-    boolean existsByBranchNameAndDeletedFalse(String companyName);
+    List<Branch> findByCompanyIdAndDeletedFalseOrderByIdDesc(
+            Long companyId
+    );
 
-    Optional<Branch>  findByBranchCode(String companyCode);
+    boolean existsByCompanyIdAndBranchCodeAndDeletedFalse(
+            Long companyId,
+            String branchCode
+    );
 
+    boolean existsByCompanyIdAndBranchNameAndDeletedFalse(
+            Long companyId,
+            String branchName
+    );
 
+    Optional<Branch> findByCompanyIdAndBranchCodeAndDeletedFalse(
+            Long companyId,
+            String branchCode
+    );
+
+    long countByCompanyIdAndDeletedFalse(Long companyId);
+
+    long countByCompanyIdAndActiveTrueAndDeletedFalse(Long companyId);
+
+    long countByCompanyIdAndActiveFalseAndDeletedFalse(Long companyId);
 }
