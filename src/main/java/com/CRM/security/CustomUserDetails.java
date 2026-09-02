@@ -1,0 +1,72 @@
+package com.CRM.security;
+
+import com.CRM.entity.User;
+import lombok.AllArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
+
+@AllArgsConstructor
+public class CustomUserDetails implements UserDetails {
+
+    private final User user;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+
+        System.out.println(user.getRole().getRoleName());
+
+        return List.of(
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleName().toUpperCase())
+        );
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return user.getUsername();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return Boolean.TRUE.equals(user.getAccountNonExpired());
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return Boolean.TRUE.equals(user.getAccountNonLocked());
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return Boolean.TRUE.equals(user.getCredentialsNonExpired());
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return Boolean.TRUE.equals(user.getEnabled());
+    }
+
+    public Long getUserId() {
+        return user.getId();
+    }
+
+    public Long getEmployeeId() {
+        return user.getEmployee() != null ? user.getEmployee().getId() : null;
+    }
+
+    public String getRole() {
+        return user.getRole().getRoleCode();
+    }
+
+    public User getUser() {
+        return user;
+    }
+}
