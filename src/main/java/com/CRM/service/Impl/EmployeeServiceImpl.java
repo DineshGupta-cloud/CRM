@@ -32,9 +32,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeResponse createEmployee(EmployeeRequest request) {
 
-        if (employeeRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateResourceException("Email already exists.");
-        }
+//        if (employeeRepository.existsByEmail(request.getEmail())) {
+//            throw new DuplicateResourceException("Email already exists.");
+//        }
 
         Company company = companyRepository.findById(request.getCompanyId())
                 .orElseThrow(() -> new ResourceNotFoundException("Company not found"));
@@ -65,7 +65,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 branch,
                 department,
                 designation,
-                role,
+//                role,
                 manager
         );
 
@@ -83,11 +83,11 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Employee not found"));
 
-        if (!employee.getEmail().equals(request.getEmail())
-                && employeeRepository.existsByEmail(request.getEmail())) {
-
-            throw new DuplicateResourceException("Email already exists.");
-        }
+//        if (!employee.getEmail().equals(request.getEmail())
+//                && employeeRepository.existsByEmail(request.getEmail())) {
+//
+//            throw new DuplicateResourceException("Email already exists.");
+//        }
 
         Company company = companyRepository.findById(request.getCompanyId())
                 .orElseThrow(() ->

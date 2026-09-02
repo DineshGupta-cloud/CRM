@@ -9,15 +9,16 @@ import java.util.Optional;
 
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, Long> {
-    boolean existsByCompanyCode(String companyCode);
-    long count();
-
-    List<Company> findByDeletedFalse();
 
     Optional<Company> findByIdAndDeletedFalse(Long id);
+
+    Optional<Company> findByCompanyCodeAndDeletedFalse(String companyCode);
 
     boolean existsByCompanyCodeAndDeletedFalse(String companyCode);
 
     boolean existsByCompanyNameAndDeletedFalse(String companyName);
-    Optional<Company> findByCompanyCode(String companyCode);
+
+    List<Company> findByDeletedFalse();
+
+    long countByDeletedFalse();
 }

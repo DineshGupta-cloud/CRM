@@ -17,4 +17,6 @@ public interface CompanyService {
     List<CompanyResponse> getAll();
 
     void delete(Long id);
+
+
 }
