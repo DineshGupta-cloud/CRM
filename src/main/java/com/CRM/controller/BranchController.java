@@ -21,8 +21,8 @@ public class BranchController {
 
     private final BranchService branchService;
 
-    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     public ResponseEntity<ApiResponse<BranchResponse>> create(
             @Valid @RequestBody BranchRequest request) {
 
@@ -36,8 +36,8 @@ public class BranchController {
                         .build());
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     public ResponseEntity<ApiResponse<List<BranchResponse>>> getAll() {
 
         return ResponseEntity.ok(
@@ -48,8 +48,8 @@ public class BranchController {
                         .build());
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     public ResponseEntity<ApiResponse<BranchResponse>> getById(
             @PathVariable Long id) {
 
@@ -61,8 +61,8 @@ public class BranchController {
                         .build());
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     public ResponseEntity<ApiResponse<BranchResponse>> update(
             @PathVariable Long id,
             @Valid @RequestBody BranchRequest request) {
@@ -75,8 +75,8 @@ public class BranchController {
                         .build());
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
 
         branchService.delete(id);

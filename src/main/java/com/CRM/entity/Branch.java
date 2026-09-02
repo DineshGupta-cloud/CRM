@@ -6,7 +6,15 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "branches")
+@Table(
+        name = "branches",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_branch_company_code",
+                        columnNames = {"company_id", "branch_code"}
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,7 +26,7 @@ public class Branch {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(nullable = false, length = 20)
     private String branchCode;
 
     @Column(nullable = false, length = 100)
@@ -27,7 +35,6 @@ public class Branch {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
-
     @Column(length = 255)
     private String address;
 
