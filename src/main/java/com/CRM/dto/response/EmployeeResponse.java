@@ -57,8 +57,8 @@ public class EmployeeResponse {
     private Long designationId;
     private String designationName;
 
-    private Long roleId;
-    private String roleName;
+//    private Long roleId;
+//    private String roleName;
 
     private Long reportingManagerId;
     private String reportingManagerName;
