@@ -75,7 +75,6 @@ public class EmployeeMapper {
                              Branch branch,
                              Department department,
                              Designation designation,
-                             Role role,
                              Employee manager) {
 
         employee.setFirstName(request.getFirstName());

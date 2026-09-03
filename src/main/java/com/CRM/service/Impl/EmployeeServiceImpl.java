@@ -3,7 +3,8 @@ package com.CRM.service.Impl;
 import com.CRM.dto.request.EmployeeRequest;
 import com.CRM.dto.response.EmployeeResponse;
 import com.CRM.entity.*;
-import com.CRM.exception.DuplicateResourceException;
+import com.CRM.exception.ForbiddenException;
+import com.CRM.security.SecurityUtils;
 import com.CRM.exception.ResourceNotFoundException;
 import com.CRM.mapper.EmployeeMapper;
 import com.CRM.repository.*;
@@ -26,37 +27,63 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final BranchRepository branchRepository;
     private final DepartmentRepository departmentRepository;
     private final DesignationRepository designationRepository;
-    private final RoleRepository roleRepository;
     private final EmployeeMapper mapper;
-
+    private final SecurityUtils securityUtils;
     @Override
     public EmployeeResponse createEmployee(EmployeeRequest request) {
 
-//        if (employeeRepository.existsByEmail(request.getEmail())) {
-//            throw new DuplicateResourceException("Email already exists.");
-//        }
+        Long companyId;
 
-        Company company = companyRepository.findById(request.getCompanyId())
-                .orElseThrow(() -> new ResourceNotFoundException("Company not found"));
+        if (securityUtils.isAdmin()) {
+            companyId = request.getCompanyId();
+        } else {
+            companyId = securityUtils.getCurrentCompanyId();
 
+            if (!companyId.equals(request.getCompanyId())) {
+                throw new ForbiddenException(
+                        "You are not allowed to create an employee for another company."
+                );
+            }
+        }
 
-        Branch branch = branchRepository.findById(request.getBranchId())
-                .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
+        Company company = companyRepository.findByIdAndDeletedFalse(companyId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Company not found"));
 
-        Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+        Branch branch = branchRepository
+                .findByIdAndCompanyIdAndDeletedFalse(
+                        request.getBranchId(),
+                        companyId
+                )
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Branch not found in the selected company"));
 
-        Designation designation = designationRepository.findById(request.getDesignationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Designation not found"));
+        Department department = departmentRepository
+                .findByIdAndBranchIdAndDeletedFalse(
+                        request.getDepartmentId(),
+                        request.getBranchId()
+                )
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Department not found in the selected branch"));
 
-        Role role = roleRepository.findById(request.getRoleId())
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        Designation designation = designationRepository
+                .findByIdAndDeletedFalse(request.getDesignationId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Designation not found"));
 
         Employee manager = null;
 
         if (request.getReportingManagerId() != null) {
-            manager = employeeRepository.findById(request.getReportingManagerId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Manager not found"));
+            manager = employeeRepository
+                    .findScopedEmployee(
+                            request.getReportingManagerId(),
+                            companyId
+                    )
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException(
+                                    "Reporting Manager not found in the selected company"));
         }
 
         Employee employee = mapper.toEntity(
@@ -65,57 +92,85 @@ public class EmployeeServiceImpl implements EmployeeService {
                 branch,
                 department,
                 designation,
-//                role,
                 manager
         );
 
-        employee.setEmployeeCode(generateEmployeeCode());
+        employee.setEmployeeCode(generateEmployeeCode(companyId));
 
         employee = employeeRepository.save(employee);
 
         return mapper.toResponse(employee);
     }
-
     @Override
     public EmployeeResponse updateEmployee(Long id, EmployeeRequest request) {
 
-        Employee employee = employeeRepository.findById(id)
+        Long companyId;
+
+        if (securityUtils.isAdmin()) {
+            companyId = request.getCompanyId();
+        } else {
+            companyId = securityUtils.getCurrentCompanyId();
+
+            if (!companyId.equals(request.getCompanyId())) {
+                throw new ForbiddenException(
+                        "You are not allowed to move an employee to another company."
+                );
+            }
+        }
+
+        Employee employee = securityUtils.isAdmin()
+                ? employeeRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee not found"))
+                : employeeRepository.findScopedEmployee(id, companyId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Employee not found"));
 
-//        if (!employee.getEmail().equals(request.getEmail())
-//                && employeeRepository.existsByEmail(request.getEmail())) {
-//
-//            throw new DuplicateResourceException("Email already exists.");
-//        }
-
-        Company company = companyRepository.findById(request.getCompanyId())
+        Company company = companyRepository.findByIdAndDeletedFalse(companyId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Company not found"));
 
-        Branch branch = branchRepository.findById(request.getBranchId())
+        Branch branch = branchRepository
+                .findByIdAndCompanyIdAndDeletedFalse(
+                        request.getBranchId(),
+                        companyId
+                )
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Branch not found"));
+                        new ResourceNotFoundException(
+                                "Branch not found in the selected company"));
 
-        Department department = departmentRepository.findById(request.getDepartmentId())
+        Department department = departmentRepository
+                .findByIdAndBranchIdAndDeletedFalse(
+                        request.getDepartmentId(),
+                        request.getBranchId()
+                )
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Department not found"));
+                        new ResourceNotFoundException(
+                                "Department not found in the selected branch"));
 
-        Designation designation = designationRepository.findById(request.getDesignationId())
+        Designation designation = designationRepository
+                .findByIdAndDeletedFalse(request.getDesignationId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Designation not found"));
-
-        Role role = roleRepository.findById(request.getRoleId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Role not found"));
 
         Employee manager = null;
 
         if (request.getReportingManagerId() != null) {
 
-            manager = employeeRepository.findById(request.getReportingManagerId())
+            if (request.getReportingManagerId().equals(id)) {
+                throw new ForbiddenException(
+                        "An employee cannot report to themselves."
+                );
+            }
+
+            manager = employeeRepository
+                    .findScopedEmployee(
+                            request.getReportingManagerId(),
+                            companyId
+                    )
                     .orElseThrow(() ->
-                            new ResourceNotFoundException("Reporting Manager not found"));
+                            new ResourceNotFoundException(
+                                    "Reporting Manager not found in the selected company"));
         }
 
         mapper.updateEntity(
@@ -125,7 +180,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 branch,
                 department,
                 designation,
-                role,
                 manager
         );
 
@@ -138,28 +192,56 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional(readOnly = true)
     public EmployeeResponse getEmployeeById(Long id) {
 
-        Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee not found"));
+        Employee employee;
+
+        if (securityUtils.isAdmin()) {
+            employee = employeeRepository.findByIdAndDeletedFalse(id)
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException("Employee not found"));
+        } else {
+            Long companyId = securityUtils.getCurrentCompanyId();
+
+            employee = employeeRepository
+                    .findScopedEmployee(id, companyId)
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException("Employee not found"));
+        }
 
         return mapper.toResponse(employee);
     }
-
     @Override
     @Transactional(readOnly = true)
     public List<EmployeeResponse> getAllEmployees() {
 
-        return employeeRepository.findAll()
+        if (securityUtils.isAdmin()) {
+            return employeeRepository.findAll()
+                    .stream()
+                    .filter(employee -> !Boolean.TRUE.equals(employee.getDeleted()))
+                    .map(mapper::toResponse)
+                    .toList();
+        }
+
+        Long companyId = securityUtils.getCurrentCompanyId();
+
+        return employeeRepository
+                .findByCompanyIdAndDeletedFalseOrderByIdDesc(companyId)
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
     }
-
     @Override
     @Transactional(readOnly = true)
     public Page<EmployeeResponse> getEmployees(Pageable pageable) {
 
-        return employeeRepository.findAll(pageable)
+        if (securityUtils.isAdmin()) {
+            return employeeRepository.findAll(pageable)
+                    .map(mapper::toResponse);
+        }
+
+        Long companyId = securityUtils.getCurrentCompanyId();
+
+        return employeeRepository
+                .findByCompanyIdAndDeletedFalse(companyId, pageable)
                 .map(mapper::toResponse);
     }
 
@@ -175,12 +257,44 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         employeeRepository.save(employee);
     }
-
     @Override
-    public String generateEmployeeCode() {
+    @Transactional(readOnly = true)
+    public String generateEmployeeCode(Long companyId) {
 
-        long count = employeeRepository.count() + 1;
+        if (companyId == null) {
+            throw new IllegalArgumentException("Company ID is required.");
+        }
 
-        return String.format("EMP%05d", count);
+        if (!securityUtils.isAdmin()) {
+
+            Long currentCompanyId = securityUtils.getCurrentCompanyId();
+
+            if (!currentCompanyId.equals(companyId)) {
+                throw new ForbiddenException(
+                        "You are not allowed to generate an employee code for another company."
+                );
+            }
+        }
+
+        companyRepository.findByIdAndDeletedFalse(companyId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Company not found"));
+
+        long count = employeeRepository.countByCompanyIdAndDeletedFalse(companyId);
+
+        String employeeCode;
+
+        do {
+            count++;
+
+            employeeCode = String.format("EMP%05d", count);
+
+        } while (employeeRepository
+                .existsByCompanyIdAndEmployeeCodeAndDeletedFalse(
+                        companyId,
+                        employeeCode
+                ));
+
+        return employeeCode;
     }
 }

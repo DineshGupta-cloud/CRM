@@ -22,7 +22,7 @@ public interface EmployeeService {
 
     void deleteEmployee(Long id);
 
-    String generateEmployeeCode();
+    String generateEmployeeCode(Long companyId);
 
 }
 

@@ -32,7 +32,7 @@ public class DataInitializer implements CommandLineRunner {
 
         companySeeder.seed();
 
-        branchSeeder.seed();
+//        branchSeeder.seed();
 
         departmentSeeder.seed();
 

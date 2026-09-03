@@ -14,6 +14,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
     boolean existsByDepartmentCode(String departmentCode);
     long count();
 
+    Optional<Department> findByIdAndBranchIdAndDeletedFalse(Long id, Long branchId);
 
     List<Department> findByDeletedFalse();
 
@@ -23,4 +24,5 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
     boolean existsByDepartmentNameAndDeletedFalse(String companyName);
     Optional<Department> findByDepartmentCode(String departmentCode);
+
 }

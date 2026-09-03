@@ -3,6 +3,7 @@ package com.CRM.controller;
 import com.CRM.dto.request.EmployeeRequest;
 import com.CRM.dto.response.ApiResponse;
 import com.CRM.dto.response.EmployeeResponse;
+import com.CRM.security.SecurityUtils;
 import com.CRM.service.EmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.List;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final SecurityUtils securityUtils;
 
     @PreAuthorize("hasAnyRole('ADMIN','HR')")
     @PostMapping
@@ -39,7 +41,7 @@ public class EmployeeController {
     }
 
 
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN','HR','MANAGER','TEAM_LEAD','EMPLOYEE')")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<EmployeeResponse>> getEmployee(
             @PathVariable Long id) {
@@ -64,6 +66,7 @@ public class EmployeeController {
                         .build());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     @GetMapping("/page")
     public ResponseEntity<Page<EmployeeResponse>> getEmployees(Pageable pageable) {
 
@@ -95,9 +98,14 @@ public class EmployeeController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
     @GetMapping("/next-code")
     public ResponseEntity<String> nextCode() {
 
-        return ResponseEntity.ok(employeeService.generateEmployeeCode());
+        Long companyId = securityUtils.isAdmin()
+                ? null
+                : securityUtils.getCurrentCompanyId();
+
+        return ResponseEntity.ok(employeeService.generateEmployeeCode(companyId));
     }
 }

@@ -28,11 +28,11 @@ public class EmployeeSeeder {
             return;
         }
 
-        Company company =
-                companyRepository.findByCompanyCode("CMP001").orElseThrow();
-
-        Branch branch =
-                branchRepository.findByBranchCode("BR001").orElseThrow();
+//        Company company =
+//                companyRepository.findByCompanyCode("CMP001").orElseThrow();
+//
+//        Branch branch =
+//                branchRepository.findByBranchCode("BR001").orElseThrow();
 
         Department department =
                 departmentRepository.findByDepartmentCode("DEP009").orElseThrow();
@@ -48,8 +48,8 @@ public class EmployeeSeeder {
                 "Gupta",
                 "dinesh.gupta@crm.com",
                 "9876543210",
-                company,
-                branch,
+//                company,
+//                branch,
                 department,
                 designation,
                 role
@@ -61,8 +61,7 @@ public class EmployeeSeeder {
                 "Sharma",
                 "rahul.sharma@crm.com",
                 "9876543211",
-                company,
-                branch,
+
                 department,
                 designation,
                 role
@@ -74,8 +73,7 @@ public class EmployeeSeeder {
                 "Verma",
                 "amit.verma@crm.com",
                 "9876543212",
-                company,
-                branch,
+
                 department,
                 designation,
                 role
@@ -90,8 +88,6 @@ public class EmployeeSeeder {
             String lastName,
             String email,
             String mobile,
-            Company company,
-            Branch branch,
             Department department,
             Designation designation,
             Role role) {
