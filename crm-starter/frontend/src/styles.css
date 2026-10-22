@@ -1,0 +1,48 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6fb;
+}
+
+.login-container {
+  width: 360px;
+  margin: 100px auto;
+  padding: 30px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.login-container input {
+  display: block;
+  width: 100%;
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #dfe3e8;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.login-container button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+}
+
+.cards {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.card {
+  flex: 1;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
